@@ -12,6 +12,13 @@ public class Mascota {
     public Mascota() {
     }
 
+    public Mascota(String nombre, Long raza, Date fecha_nacimiento, Long propietario) {
+        this.nombre = nombre;
+        this.raza = raza;
+        this.fecha_nacimiento = fecha_nacimiento;
+        this.propietario = propietario;
+    }
+
     public Mascota(Long id, String nombre, Long raza, Date fecha_nacimiento, Long propietario) {
         this.id = id;
         this.nombre = nombre;
