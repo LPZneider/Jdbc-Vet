@@ -1,47 +1,51 @@
 package org.lpzneider.veterinaria.service;
 
-import org.lpzneider.veterinaria.models.Mascota;
-import org.lpzneider.veterinaria.models.Usuario;
-import org.lpzneider.veterinaria.models.Veterinaria;
-import org.lpzneider.veterinaria.models.Veterinario;
+import org.lpzneider.veterinaria.models.*;
 
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public interface Service {
-    List<Mascota> readMascota() throws SQLException;
+    List<Mascota> readMascota();
 
-    Mascota getByIdMascota(Long id) throws SQLException;
+    Optional<Mascota> getByIdMascota(Long id);
 
-    Mascota saveOrEditMascota(Mascota mascota) throws SQLException;
+    Mascota saveOrEditMascota(Mascota mascota);
 
-    void deleteMascota(Long id) throws SQLException;
-
-
-    List<Usuario> readUsuario() throws SQLException;
-
-    Usuario getByIdUsuario(Long id) throws SQLException;
-
-    Usuario saveOrEditUsuario(Usuario usuario) throws SQLException;
-
-    void deleteUsuario(Long id) throws SQLException;
+    void deleteMascota(Long id);
 
 
-    List<Veterinario> readVeterinario() throws SQLException;
+    List<Usuario> readUsuario();
 
-    Veterinario getByIdVeterinario(Long id) throws SQLException;
+    Optional<Usuario> getByIdUsuario(Long id);
 
-    Veterinario saveOrEditVeterinario(Veterinario veterinario) throws SQLException;
+    Usuario saveOrEditUsuario(Usuario usuario);
 
-    void deleteVeterinario(Long id) throws SQLException;
+    void deleteUsuario(Long id);
 
 
-    List<Veterinaria> readVeterinaria() throws SQLException;
+    List<Veterinario> readVeterinario();
 
-    Veterinaria getByIdVeterinaria(Long id) throws SQLException;
+    Optional<Veterinario> getByIdVeterinario(Long id);
 
-    Veterinaria saveOrEditVeterinaria(Veterinaria veterinaria) throws SQLException;
+    Veterinario saveOrEditVeterinario(Veterinario veterinario);
 
-    void deleteVeterinaria(Long id) throws SQLException;
+    void deleteVeterinario(Long id);
 
+
+    List<Veterinaria> readVeterinaria();
+
+    Optional<Veterinaria> getByIdVeterinaria(Long id);
+
+    Veterinaria saveOrEditVeterinaria(Veterinaria veterinaria);
+
+    void deleteVeterinaria(Long id);
+
+    List<Raza> readRaza();
+
+    Optional<Raza> getByIdRaza(Long id);
+
+    Raza saveOrEditRaza(Raza raza);
+
+    void deleteRaza(Long id);
 }

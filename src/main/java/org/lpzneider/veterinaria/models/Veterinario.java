@@ -1,18 +1,19 @@
 package org.lpzneider.veterinaria.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "veterinarios")
 public class Veterinario {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
-    private Long veterinaria_registrada;
-
-    public Veterinario() {
-    }
-
-    public Veterinario(Long id, String nombre, Long veterinaria_registrada) {
-        this.id = id;
-        this.nombre = nombre;
-        this.veterinaria_registrada = veterinaria_registrada;
-    }
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_veterinaria")
+    private Veterinaria veterinariaRegistrada;
 
     public Long getId() {
         return id;
@@ -30,11 +31,11 @@ public class Veterinario {
         this.nombre = nombre;
     }
 
-    public Long getVeterinaria_registrada() {
-        return veterinaria_registrada;
+    public Veterinaria getVeterinariaRegistrada() {
+        return veterinariaRegistrada;
     }
 
-    public void setVeterinaria_registrada(Long veterinaria_registrada) {
-        this.veterinaria_registrada = veterinaria_registrada;
+    public void setVeterinariaRegistrada(Veterinaria veterinariaRegistrada) {
+        this.veterinariaRegistrada = veterinariaRegistrada;
     }
 }

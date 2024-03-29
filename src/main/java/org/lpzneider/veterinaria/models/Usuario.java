@@ -1,22 +1,25 @@
 package org.lpzneider.veterinaria.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
 import java.util.List;
 
+@Entity
+@Table(name = "usuarios")
 public class Usuario {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
     private String direccion;
-    private Long mascotas;
 
-    public Usuario() {
-    }
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "propietario")
+    private List<Mascota> mascotas;
 
-    public Usuario(Long id, String nombre, String direccion, Long mascotas) {
-        this.id = id;
-        this.nombre = nombre;
-        this.direccion = direccion;
-        this.mascotas = mascotas;
-    }
+    @ManyToMany(mappedBy = "usuarios")
+    private List<Veterinaria> veterinarias;
 
     public Long getId() {
         return id;
@@ -42,11 +45,11 @@ public class Usuario {
         this.direccion = direccion;
     }
 
-    public Long getMascotas() {
+    public List<Mascota> getMascotas() {
         return mascotas;
     }
 
-    public void setMascotas(Long mascotas) {
+    public void setMascotas(List<Mascota> mascotas) {
         this.mascotas = mascotas;
     }
 }

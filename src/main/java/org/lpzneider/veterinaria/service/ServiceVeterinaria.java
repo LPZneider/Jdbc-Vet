@@ -1,231 +1,223 @@
 package org.lpzneider.veterinaria.service;
 
-import org.lpzneider.veterinaria.models.Mascota;
-import org.lpzneider.veterinaria.models.Usuario;
-import org.lpzneider.veterinaria.models.Veterinaria;
-import org.lpzneider.veterinaria.models.Veterinario;
-import org.lpzneider.veterinaria.repository.*;
-import org.lpzneider.veterinaria.util.ConexionBaseDatos;
+import jakarta.inject.Inject;
+import org.lpzneider.veterinaria.exceptions.ServiceJpaException;
+import org.lpzneider.veterinaria.models.*;
+import org.lpzneider.veterinaria.repository.Repository;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
+@org.lpzneider.veterinaria.configs.Service
 public class ServiceVeterinaria implements Service {
 
+
+    @Inject
     private Repository<Mascota> mascotaRepository;
+    @Inject
     private Repository<Usuario> usuarioRepository;
+    @Inject
     private Repository<Veterinario> veterinarioRepository;
+    @Inject
     private Repository<Veterinaria> veterinariaRepository;
+    @Inject
+    private Repository<Raza> razaRepository;
 
-    public ServiceVeterinaria(){
-        this.mascotaRepository = new RepositoryMascotaImpl();
-        this.usuarioRepository = new RepositoryUsuarioImpl();
-        this.veterinarioRepository = new RepositoryVeterinarioImpl();
-        this.veterinariaRepository = new RepositoryVeterinariaImpl();
-    }
 
     @Override
-    public List<Mascota> readMascota() throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            mascotaRepository.setConn(conn);
+    public List<Mascota> readMascota() {
+        try {
             return mascotaRepository.read();
-
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public Mascota getByIdMascota(Long id) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            mascotaRepository.setConn(conn);
-            return mascotaRepository.getById(id);
+    public Optional<Mascota> getByIdMascota(Long id) {
+        try {
+            return Optional.ofNullable(mascotaRepository.getById(id));
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public Mascota saveOrEditMascota(Mascota mascota) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            mascotaRepository.setConn(conn);
-            if (conn.getAutoCommit()) conn.setAutoCommit(false);
-            Mascota newMascota = null;
-            try {
-                newMascota = mascotaRepository.saveOrEdit(mascota);
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
+    public Mascota saveOrEditMascota(Mascota mascota) {
+        Mascota newMascota = null;
+        try {
+            newMascota = mascotaRepository.saveOrEdit(mascota);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+        return newMascota;
+    }
 
-            }
-            return newMascota;
+
+    @Override
+    public void deleteMascota(Long id) {
+        try {
+            mascotaRepository.delete(id);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
-    @Override
-    public void deleteMascota(Long id) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            mascotaRepository.setConn(conn);
-            if (conn.getAutoCommit()) conn.setAutoCommit(false);
-            try {
-                mascotaRepository.delete(id);
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
-
-            }
-        }
-    }
 
     @Override
-    public List<Usuario> readUsuario() throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            usuarioRepository.setConn(conn);
+    public List<Usuario> readUsuario() {
+        try {
             return usuarioRepository.read();
-
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public Usuario getByIdUsuario(Long id) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            usuarioRepository.setConn(conn);
-            return usuarioRepository.getById(id);
+    public Optional<Usuario> getByIdUsuario(Long id) {
+        try {
+            return Optional.ofNullable(usuarioRepository.getById(id));
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public Usuario saveOrEditUsuario(Usuario usuario) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            usuarioRepository.setConn(conn);
-            if (conn.getAutoCommit()) conn.setAutoCommit(false);
-            Usuario newUsuario = null;
-            try {
-                newUsuario = usuarioRepository.saveOrEdit(usuario);
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
+    public Usuario saveOrEditUsuario(Usuario usuario) {
+        Usuario newUsuario = null;
+        try {
+            newUsuario = usuarioRepository.saveOrEdit(usuario);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+        return newUsuario;
+    }
 
-            }
-            return newUsuario;
+
+    @Override
+    public void deleteUsuario(Long id) {
+        try {
+            usuarioRepository.delete(id);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
-    @Override
-    public void deleteUsuario(Long id) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            usuarioRepository.setConn(conn);
-            if (conn.getAutoCommit()) conn.setAutoCommit(false);
-            try {
-                usuarioRepository.delete(id);
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
-
-            }
-        }
-    }
 
     @Override
-    public List<Veterinario> readVeterinario() throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            veterinarioRepository.setConn(conn);
+    public List<Veterinario> readVeterinario() {
+        try {
             return veterinarioRepository.read();
-
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public Veterinario getByIdVeterinario(Long id) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            veterinarioRepository.setConn(conn);
-            return veterinarioRepository.getById(id);
+    public Optional<Veterinario> getByIdVeterinario(Long id) {
+        try {
+            return Optional.ofNullable(veterinarioRepository.getById(id));
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public Veterinario saveOrEditVeterinario(Veterinario veterinario) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            veterinarioRepository.setConn(conn);
-            if (conn.getAutoCommit()) conn.setAutoCommit(false);
-            Veterinario newVeterinario = null;
-            try {
-                newVeterinario = veterinarioRepository.saveOrEdit(veterinario);
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
+    public Veterinario saveOrEditVeterinario(Veterinario veterinario) {
+        Veterinario newVeterinario = null;
+        try {
+            newVeterinario = veterinarioRepository.saveOrEdit(veterinario);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+        return newVeterinario;
+    }
 
-            }
-            return newVeterinario;
+
+    @Override
+    public void deleteVeterinario(Long id) {
+        try {
+            veterinarioRepository.delete(id);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public void deleteVeterinario(Long id) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            veterinarioRepository.setConn(conn);
-            if (conn.getAutoCommit()) conn.setAutoCommit(false);
-            try {
-                veterinarioRepository.delete(id);
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
-
-            }
-        }
-    }
-
-    @Override
-    public List<Veterinaria> readVeterinaria() throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            veterinariaRepository.setConn(conn);
+    public List<Veterinaria> readVeterinaria() {
+        try {
             return veterinariaRepository.read();
-
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public Veterinaria getByIdVeterinaria(Long id) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            veterinariaRepository.setConn(conn);
-            return veterinariaRepository.getById(id);
+    public Optional<Veterinaria> getByIdVeterinaria(Long id) {
+        try {
+            return Optional.ofNullable(veterinariaRepository.getById(id));
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public Veterinaria saveOrEditVeterinaria(Veterinaria veterinaria) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            veterinariaRepository.setConn(conn);
-            if (conn.getAutoCommit()) conn.setAutoCommit(false);
-            Veterinaria newVeterinaria = null;
-            try {
-                newVeterinaria = veterinariaRepository.saveOrEdit(veterinaria);
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
+    public Veterinaria saveOrEditVeterinaria(Veterinaria veterinaria) {
+        Veterinaria newVeterinaria = null;
+        try {
+            newVeterinaria = veterinariaRepository.saveOrEdit(veterinaria);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+        return newVeterinaria;
+    }
 
-            }
-            return newVeterinaria;
+    @Override
+    public void deleteVeterinaria(Long id) {
+        try {
+            veterinariaRepository.delete(id);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+    }
+
+
+    @Override
+    public List<Raza> readRaza() {
+        try {
+            return razaRepository.read();
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 
     @Override
-    public void deleteVeterinaria(Long id) throws SQLException {
-        try (Connection conn = ConexionBaseDatos.getConnetion()) {
-            veterinariaRepository.setConn(conn);
-            if (conn.getAutoCommit()) conn.setAutoCommit(false);
-            try {
-                veterinariaRepository.delete(id);
-                conn.commit();
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
+    public Optional<Raza> getByIdRaza(Long id) {
+        try {
+            return Optional.ofNullable(razaRepository.getById(id));
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+    }
 
-            }
+    @Override
+    public Raza saveOrEditRaza(Raza mascota) {
+        Raza newRaza = null;
+        try {
+            newRaza = razaRepository.saveOrEdit(mascota);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+        return newRaza;
+    }
+
+
+    @Override
+    public void deleteRaza(Long id) {
+        try {
+            razaRepository.delete(id);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
     }
 }

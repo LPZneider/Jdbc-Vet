@@ -1,102 +1,40 @@
 package org.lpzneider.veterinaria.repository;
 
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import org.lpzneider.veterinaria.configs.Repositorio;
 import org.lpzneider.veterinaria.models.Veterinaria;
-import org.lpzneider.veterinaria.models.Veterinario;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
-
+@Repositorio
 public class RepositoryVeterinariaImpl implements Repository<Veterinaria> {
 
-    private Connection conn;
+    @Inject
+    private EntityManager em;
 
-    public RepositoryVeterinariaImpl(Connection conn) {
-        this.conn = conn;
-    }
-
-    public RepositoryVeterinariaImpl() {
-
-    }
-
-    public Connection getConn() {
-        return conn;
+    @Override
+    public List<Veterinaria> read() {
+        return em.createQuery("from Veterinaria", Veterinaria.class).getResultList();
     }
 
     @Override
-    public void setConn(Connection conn) {
-        this.conn = conn;
+    public Veterinaria getById(Long id) {
+        return em.find(Veterinaria.class, id);
     }
 
     @Override
-    public List<Veterinaria> read() throws SQLException {
-        List<Veterinaria> veterinarias = new ArrayList<>();
-        try (Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM veterinaria")) {
-            while (rs.next()) {
-                veterinarias.add(crearVeterinaria(rs));
-            }
-        }
-        return veterinarias;
-    }
-
-    @Override
-    public Veterinaria getById(Long id)  throws SQLException{
-        Veterinaria encontrada = null;
-        try (PreparedStatement stmt = conn.prepareStatement("SELECT * FROM veterinaria WHERE id=?")) {
-            stmt.setLong(1, id);
-            try(ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()){
-                    encontrada = crearVeterinaria(rs);
-                }
-            }
-
-        }
-        return encontrada;
-    }
-
-    @Override
-    public Veterinaria saveOrEdit(Veterinaria veterinario) throws SQLException {
-        String sql;
-        if (veterinario.getId() != null && veterinario.getId() > 0 ){
-            sql = "UPDATE veterinaria SET nombre=? direccion=? WHERE id=? ";
+    public Veterinaria saveOrEdit(Veterinaria veterinaria) {
+        if (veterinaria.getId() != null && veterinaria.getId() > 0) {
+            em.persist(veterinaria);
         } else {
-            sql = "INSERT INTO veterinaria(nombre,direccion) VALUES(?,?)";
+            em.merge(veterinaria);
         }
-
-        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, veterinario.getNombre());
-            stmt.setString(2, veterinario.getDireccion());
-
-            if (veterinario.getId() != null && veterinario.getId() > 0) {
-                stmt.setLong(3, veterinario.getId());
-            }
-
-            stmt.executeUpdate();
-
-            if (veterinario.getId() == null) {
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        veterinario.setId(rs.getLong(1));
-                    }
-                }
-            }
-        }
-        return veterinario;
+        return veterinaria;
     }
 
     @Override
-    public void delete(Long id) throws SQLException {
-        try (PreparedStatement stmt = conn.prepareStatement("DELETE FROM veterinaria WHERE id=?")) {
-            stmt.setLong(1,id);
-            stmt.executeUpdate();
-        }
+    public void delete(Long id) {
+        em.remove(getById(id));
     }
-    private static Veterinaria crearVeterinaria(ResultSet rs) throws SQLException {
-        Veterinaria c = new Veterinaria();
-        c.setId(rs.getLong("id"));
-        c.setNombre(rs.getString("nombre"));
-        c.setDireccion(rs.getString("direccion"));
-        return c;
-    }
+
 }

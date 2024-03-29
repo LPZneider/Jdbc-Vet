@@ -1,29 +1,38 @@
 package org.lpzneider.veterinaria.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.util.Date;
 
-public class Mascota {
+@Entity
+@Table(name = "mascotas")
+public class Mascota implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
-    private Long raza;
-    private Date fecha_nacimiento;
-    private Long propietario;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_raza")
+    private Raza raza;
+
+
+    @Column(name = "fecha_de_nacimiento")
+    private Date fechaNacimiento;
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_propietario")
+    private Usuario propietario;
 
     public Mascota() {
     }
 
-    public Mascota(String nombre, Long raza, Date fecha_nacimiento, Long propietario) {
+    public Mascota(String nombre, Raza raza, Date fechaNacimiento, Usuario propietario) {
         this.nombre = nombre;
         this.raza = raza;
-        this.fecha_nacimiento = fecha_nacimiento;
-        this.propietario = propietario;
-    }
-
-    public Mascota(Long id, String nombre, Long raza, Date fecha_nacimiento, Long propietario) {
-        this.id = id;
-        this.nombre = nombre;
-        this.raza = raza;
-        this.fecha_nacimiento = fecha_nacimiento;
+        this.fechaNacimiento = fechaNacimiento;
         this.propietario = propietario;
     }
 
@@ -43,27 +52,27 @@ public class Mascota {
         this.nombre = nombre;
     }
 
-    public Long getRaza() {
+    public Raza getRaza() {
         return raza;
     }
 
-    public void setRaza(Long raza) {
+    public void setRaza(Raza raza) {
         this.raza = raza;
     }
 
-    public Date getFecha_nacimiento() {
-        return fecha_nacimiento;
+    public Date getFechaNacimiento() {
+        return fechaNacimiento;
     }
 
-    public void setFecha_nacimiento(Date fecha_nacimiento) {
-        this.fecha_nacimiento = fecha_nacimiento;
+    public void setFechaNacimiento(Date fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
     }
 
-    public Long getPropietario() {
+    public Usuario getPropietario() {
         return propietario;
     }
 
-    public void setPropietario(Long propietario) {
+    public void setPropietario(Usuario propietario) {
         this.propietario = propietario;
     }
 }
