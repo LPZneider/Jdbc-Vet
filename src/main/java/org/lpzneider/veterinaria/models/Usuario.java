@@ -3,6 +3,7 @@ package org.lpzneider.veterinaria.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,6 +21,11 @@ public class Usuario {
 
     @ManyToMany(mappedBy = "usuarios")
     private List<Veterinaria> veterinarias;
+
+    public Usuario() {
+        this.mascotas = new ArrayList<>();
+        this.veterinarias = new ArrayList<>();
+    }
 
     public Long getId() {
         return id;

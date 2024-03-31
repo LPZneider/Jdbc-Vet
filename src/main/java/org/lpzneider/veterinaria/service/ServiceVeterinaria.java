@@ -1,14 +1,19 @@
 package org.lpzneider.veterinaria.service;
 
 import jakarta.inject.Inject;
+import org.lpzneider.veterinaria.configs.ServicePrincipal;
 import org.lpzneider.veterinaria.exceptions.ServiceJpaException;
+import org.lpzneider.veterinaria.interceptor.Transactional;
 import org.lpzneider.veterinaria.models.*;
 import org.lpzneider.veterinaria.repository.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
+@ServicePrincipal
 @org.lpzneider.veterinaria.configs.Service
+@Transactional
 public class ServiceVeterinaria implements Service {
 
 
@@ -43,14 +48,12 @@ public class ServiceVeterinaria implements Service {
     }
 
     @Override
-    public Mascota saveOrEditMascota(Mascota mascota) {
-        Mascota newMascota = null;
+    public void saveOrEditMascota(Mascota mascota) {
         try {
-            newMascota = mascotaRepository.saveOrEdit(mascota);
+            mascotaRepository.saveOrEdit(mascota);
         } catch (Exception e) {
             throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
-        return newMascota;
     }
 
 
@@ -83,14 +86,12 @@ public class ServiceVeterinaria implements Service {
     }
 
     @Override
-    public Usuario saveOrEditUsuario(Usuario usuario) {
-        Usuario newUsuario = null;
+    public void saveOrEditUsuario(Usuario usuario) {
         try {
-            newUsuario = usuarioRepository.saveOrEdit(usuario);
+            usuarioRepository.saveOrEdit(usuario);
         } catch (Exception e) {
             throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
-        return newUsuario;
     }
 
 
@@ -123,14 +124,12 @@ public class ServiceVeterinaria implements Service {
     }
 
     @Override
-    public Veterinario saveOrEditVeterinario(Veterinario veterinario) {
-        Veterinario newVeterinario = null;
+    public void saveOrEditVeterinario(Veterinario veterinario) {
         try {
-            newVeterinario = veterinarioRepository.saveOrEdit(veterinario);
+            veterinarioRepository.saveOrEdit(veterinario);
         } catch (Exception e) {
             throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
-        return newVeterinario;
     }
 
 
@@ -162,14 +161,12 @@ public class ServiceVeterinaria implements Service {
     }
 
     @Override
-    public Veterinaria saveOrEditVeterinaria(Veterinaria veterinaria) {
-        Veterinaria newVeterinaria = null;
+    public void saveOrEditVeterinaria(Veterinaria veterinaria) {
         try {
-            newVeterinaria = veterinariaRepository.saveOrEdit(veterinaria);
+            veterinariaRepository.saveOrEdit(veterinaria);
         } catch (Exception e) {
             throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
-        return newVeterinaria;
     }
 
     @Override
@@ -201,14 +198,12 @@ public class ServiceVeterinaria implements Service {
     }
 
     @Override
-    public Raza saveOrEditRaza(Raza mascota) {
-        Raza newRaza = null;
+    public void saveOrEditRaza(Raza mascota) {
         try {
-            newRaza = razaRepository.saveOrEdit(mascota);
+            razaRepository.saveOrEdit(mascota);
         } catch (Exception e) {
             throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
-        return newRaza;
     }
 
 

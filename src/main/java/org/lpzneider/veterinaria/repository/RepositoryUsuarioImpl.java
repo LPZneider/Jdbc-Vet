@@ -23,13 +23,13 @@ public class RepositoryUsuarioImpl implements Repository<Usuario> {
     }
 
     @Override
-    public Usuario saveOrEdit(Usuario usuario) {
+    public void saveOrEdit(Usuario usuario) throws Exception{
+
         if (usuario.getId() != null && usuario.getId() > 0) {
-            em.persist(usuario);
-        } else {
             em.merge(usuario);
+        } else {
+            em.persist(usuario);
         }
-        return usuario;
     }
 
     @Override

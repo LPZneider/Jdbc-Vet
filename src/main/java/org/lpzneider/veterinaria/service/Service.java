@@ -10,7 +10,7 @@ public interface Service {
 
     Optional<Mascota> getByIdMascota(Long id);
 
-    Mascota saveOrEditMascota(Mascota mascota);
+    void saveOrEditMascota(Mascota mascota);
 
     void deleteMascota(Long id);
 
@@ -19,7 +19,7 @@ public interface Service {
 
     Optional<Usuario> getByIdUsuario(Long id);
 
-    Usuario saveOrEditUsuario(Usuario usuario);
+    void saveOrEditUsuario(Usuario usuario);
 
     void deleteUsuario(Long id);
 
@@ -28,7 +28,7 @@ public interface Service {
 
     Optional<Veterinario> getByIdVeterinario(Long id);
 
-    Veterinario saveOrEditVeterinario(Veterinario veterinario);
+    void saveOrEditVeterinario(Veterinario veterinario);
 
     void deleteVeterinario(Long id);
 
@@ -37,7 +37,7 @@ public interface Service {
 
     Optional<Veterinaria> getByIdVeterinaria(Long id);
 
-    Veterinaria saveOrEditVeterinaria(Veterinaria veterinaria);
+    void saveOrEditVeterinaria(Veterinaria veterinaria);
 
     void deleteVeterinaria(Long id);
 
@@ -45,7 +45,7 @@ public interface Service {
 
     Optional<Raza> getByIdRaza(Long id);
 
-    Raza saveOrEditRaza(Raza raza);
+    void saveOrEditRaza(Raza raza);
 
     void deleteRaza(Long id);
 }

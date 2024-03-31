@@ -23,13 +23,12 @@ public class RepositoryVeterinariaImpl implements Repository<Veterinaria> {
     }
 
     @Override
-    public Veterinaria saveOrEdit(Veterinaria veterinaria) {
+    public void saveOrEdit(Veterinaria veterinaria)throws Exception {
         if (veterinaria.getId() != null && veterinaria.getId() > 0) {
-            em.persist(veterinaria);
-        } else {
             em.merge(veterinaria);
+        } else {
+            em.persist(veterinaria);
         }
-        return veterinaria;
     }
 
     @Override

@@ -5,8 +5,8 @@ import jakarta.persistence.EntityManager;
 import org.lpzneider.veterinaria.configs.Repositorio;
 import org.lpzneider.veterinaria.models.Veterinario;
 
-import java.sql.Connection;
 import java.util.List;
+
 @Repositorio
 public class RepositoryVeterinarioImpl implements Repository<Veterinario> {
 
@@ -24,13 +24,12 @@ public class RepositoryVeterinarioImpl implements Repository<Veterinario> {
     }
 
     @Override
-    public Veterinario saveOrEdit(Veterinario veterinario) {
+    public void saveOrEdit(Veterinario veterinario)throws Exception {
         if (veterinario.getId() != null && veterinario.getId() > 0) {
-            em.persist(veterinario);
-        } else {
             em.merge(veterinario);
+        } else {
+            em.persist(veterinario);
         }
-        return veterinario;
     }
 
     @Override

@@ -2,6 +2,7 @@ package org.lpzneider.veterinaria.models;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,6 +26,8 @@ public class Veterinaria {
 
 
     public Veterinaria() {
+        this.usuarios = new ArrayList<>();
+        this.veterinarios = new ArrayList<>();
     }
 
     public Long getId() {

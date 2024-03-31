@@ -1,7 +1,9 @@
 package org.lpzneider.veterinaria.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,8 +18,14 @@ public class Raza {
 
     private Integer altura;
     private Integer peso;
+
+    @JsonIgnore
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "raza")
     private List<Mascota> mascotas;
+
+    public Raza() {
+        this.mascotas = new ArrayList<>();
+    }
 
     public Long getId() {
         return id;
@@ -57,5 +65,13 @@ public class Raza {
 
     public void setPeso(Integer peso) {
         this.peso = peso;
+    }
+
+    public List<Mascota> getMascotas() {
+        return mascotas;
+    }
+
+    public void setMascotas(List<Mascota> mascotas) {
+        this.mascotas = mascotas;
     }
 }

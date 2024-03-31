@@ -29,6 +29,11 @@ public class Mascota implements Serializable {
     public Mascota() {
     }
 
+    public Mascota(String nombre, Date fechaNacimiento) {
+        this.nombre = nombre;
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
     public Mascota(String nombre, Raza raza, Date fechaNacimiento, Usuario propietario) {
         this.nombre = nombre;
         this.raza = raza;
@@ -74,5 +79,15 @@ public class Mascota implements Serializable {
 
     public void setPropietario(Usuario propietario) {
         this.propietario = propietario;
+    }
+
+    public void addRaza(Raza raza) {
+        this.raza = raza;
+        raza.getMascotas().add(this);
+    }
+
+    public void addUsuario(Usuario usuario) {
+        this.propietario = usuario;
+        usuario.getMascotas().add(this);
     }
 }

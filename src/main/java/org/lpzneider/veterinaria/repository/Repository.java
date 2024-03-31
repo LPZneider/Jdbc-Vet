@@ -5,11 +5,11 @@ import java.util.List;
 public interface Repository<T> {
 
 
-    List<T> read();
+    List<T> read() throws Exception;
 
-    T getById(Long id);
+    T getById(Long id) throws Exception;
 
-    T saveOrEdit(T t);
+    void saveOrEdit(T t) throws Exception;
 
-    void delete(Long id);
+    void delete(Long id) throws Exception;
 }
