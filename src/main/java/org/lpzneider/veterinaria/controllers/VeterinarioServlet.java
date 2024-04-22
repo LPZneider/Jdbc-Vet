@@ -1,7 +1,6 @@
 package org.lpzneider.veterinaria.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -10,23 +9,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.lpzneider.veterinaria.configs.ServicePrincipal;
 import org.lpzneider.veterinaria.exceptions.ServiceJpaException;
-import org.lpzneider.veterinaria.models.Mascota;
-import org.lpzneider.veterinaria.models.Raza;
-import org.lpzneider.veterinaria.models.Usuario;
+import org.lpzneider.veterinaria.models.Veterinaria;
+import org.lpzneider.veterinaria.models.Veterinario;
 import org.lpzneider.veterinaria.service.Service;
 import org.lpzneider.veterinaria.util.ConversorJSON;
 import org.lpzneider.veterinaria.util.ManejadorErrores;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-@WebServlet("/mascotas")
-public class MascotaServlet extends HttpServlet {
+@WebServlet("/veterinarios")
+public class VeterinarioServlet extends HttpServlet {
     @Inject
     @ServicePrincipal
     private Service service;
@@ -45,18 +40,18 @@ public class MascotaServlet extends HttpServlet {
         }
         try {
             if (id == null) {
-                List<Mascota> mascotas = service.readMascota();
+                List<Veterinario> veterinarios = service.readVeterinario();
 
-                if (!mascotas.isEmpty()) {
-                    json = ConversorJSON.convertirObjetoAJSON(mascotas);
+                if (!veterinarios.isEmpty()) {
+                    json = ConversorJSON.convertirObjetoAJSON(veterinarios);
                     resp.setStatus(HttpServletResponse.SC_OK);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             } else {
-                Mascota mascota = service.getByIdMascota(id)
-                        .orElseThrow(() -> new ServiceJpaException("Mascota no encontrada"));
-                json = ConversorJSON.convertirObjetoAJSON(mascota);
+                Veterinario veterinario = service.getByIdVeterinario(id)
+                        .orElseThrow(() -> new ServiceJpaException("Veterinario no encontrada"));
+                json = ConversorJSON.convertirObjetoAJSON(veterinario);
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
         } catch (JsonProcessingException e) {
@@ -71,48 +66,37 @@ public class MascotaServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyy-MM-dd");
+
 
         String nombre = req.getParameter("nombre");
-        String fechaNacimientoStr = req.getParameter("fechaNacimiento");
-        String idRazaStr = req.getParameter("idRaza");
-        String idPropietarioStr = req.getParameter("idPropietario");
+        String idVeterinaria = req.getParameter("idVeterinaria");
 
-        if (nombre == null || nombre.isEmpty() || fechaNacimientoStr == null || fechaNacimientoStr.isEmpty()
-                || idRazaStr == null || idRazaStr.isEmpty() || idPropietarioStr == null || idPropietarioStr.isEmpty()) {
+        if (nombre == null || nombre.isEmpty() || idVeterinaria == null) {
             ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
             return;
         }
 
-        Date fechaNacimiento;
-        Long idRaza;
-        Long idPropietario;
-
+        Long idVet;
         try {
-            fechaNacimiento = formatoFecha.parse(fechaNacimientoStr);
-            idRaza = Long.valueOf(idRazaStr);
-            idPropietario = Long.valueOf(idPropietarioStr);
-        } catch (ParseException | NumberFormatException e) {
+            idVet = Long.valueOf(idVeterinaria);
+        } catch (NumberFormatException e) {
             ManejadorErrores.enviarErrorInterno(resp);
             return;
         }
 
-        Optional<Raza> raza = service.getByIdRaza(idRaza);
-        Optional<Usuario> usuario = service.getByIdUsuario(idPropietario);
+        Optional<Veterinaria> optionalVeterinaria = service.getByIdVeterinaria(idVet);
 
-        if (raza.isEmpty() || usuario.isEmpty()) {
+        if (optionalVeterinaria.isEmpty()) {
             ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
             return;
         }
 
-        Mascota mascota = new Mascota(nombre, fechaNacimiento);
-        mascota.addRaza(raza.get());
-        mascota.addUsuario(usuario.get());
-        service.saveOrEditMascota(mascota);
+        Veterinario veterinario = new Veterinario(nombre, optionalVeterinaria.get());
+        service.saveOrEditVeterinario(veterinario);
 
         String json;
         try {
-            json = ConversorJSON.convertirObjetoAJSON(service.readMascota());
+            json = ConversorJSON.convertirObjetoAJSON(service.readVeterinario());
         } catch (Exception e) {
             ManejadorErrores.enviarErrorInterno(resp);
             return;
@@ -133,57 +117,42 @@ public class MascotaServlet extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        SimpleDateFormat formatoFecha = new SimpleDateFormat("yyyy-MM-dd");
         Long id = null;
 
         try {
             id = Long.valueOf(req.getParameter("id"));
         } catch (NumberFormatException e) {
-            throw new ServiceJpaException("Error al convertir el ID de mascota a número", e);
+            throw new ServiceJpaException("Error al convertir el ID de veterinario a número", e);
         }
 
-        Optional<Mascota> mascotaOptional = service.getByIdMascota(id);
-        if (mascotaOptional.isEmpty()) {
+        Optional<Veterinario> veterinarioOptional = service.getByIdVeterinario(id);
+        if (veterinarioOptional.isEmpty()) {
             ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
             return;
         }
 
-        Mascota mascota = mascotaOptional.get();
-
+        Veterinario veterinario = veterinarioOptional.get();
         String nombre = req.getParameter("nombre");
-        String idRazaStr = req.getParameter("idRaza");
-        String idPropietarioStr = req.getParameter("idPropietario");
-        String fechaNacimientoStr = req.getParameter("fechaNacimiento");
+        String idVeterinaria = req.getParameter("idVeterinaria");
 
-        nombre = (nombre == null) ? mascota.getNombre() : nombre;
-        Long idRaza = (idRazaStr == null) ? mascota.getRaza().getId() : Long.parseLong(idRazaStr);
-        Long idPropietario = (idPropietarioStr == null) ? mascota.getPropietario().getId() : Long.parseLong(idPropietarioStr);
-        Date fechaNacimiento = null;
 
-        try {
-            fechaNacimiento = (fechaNacimientoStr == null || fechaNacimientoStr.isEmpty()) ? mascota.getFechaNacimiento() : formatoFecha.parse(fechaNacimientoStr);
-        } catch (ParseException e) {
-            ManejadorErrores.enviarError(resp, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Formato fecha inválido");
+        nombre = (nombre == null) ? veterinario.getNombre() : nombre;
+        Long idVet = (idVeterinaria == null) ? veterinario.getVeterinariaRegistrada().getId() : Long.valueOf(idVeterinaria);
+
+        Optional<Veterinaria> optionalVeterinaria = service.getByIdVeterinaria(idVet);
+
+        if (optionalVeterinaria.isEmpty()) {
+            ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
             return;
         }
 
-        Optional<Raza> raza = service.getByIdRaza(idRaza);
-        Optional<Usuario> usuario = service.getByIdUsuario(idPropietario);
+        veterinario.setNombre(nombre);
+        veterinario.setVeterinariaRegistrada(optionalVeterinaria.get());
 
-        if (raza.isEmpty() || usuario.isEmpty()) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-
-        mascota.setNombre(nombre);
-        mascota.setFechaNacimiento(fechaNacimiento);
-        mascota.addRaza(raza.get());
-        mascota.addUsuario(usuario.get());
-
-        service.saveOrEditMascota(mascota);
+        service.saveOrEditVeterinario(veterinario);
 
         try {
-            String json = ConversorJSON.convertirObjetoAJSON(service.readMascota());
+            String json = ConversorJSON.convertirObjetoAJSON(service.readVeterinario());
             if (json != null) {
                 resp.setContentType("application/json");
                 resp.getWriter().write(json);
@@ -206,15 +175,15 @@ public class MascotaServlet extends HttpServlet {
 
         try {
             Long id = Long.valueOf(req.getParameter("id"));
-            Optional<Mascota> mascota = service.getByIdMascota(id);
+            Optional<Veterinario> veterinario = service.getByIdVeterinario(id);
 
-            if (mascota.isPresent()) {
-                service.deleteMascota(id);
-                json = ConversorJSON.convertirObjetoAJSON(service.readMascota());
+            if (veterinario.isPresent()) {
+                service.deleteVeterinario(id);
+                json = ConversorJSON.convertirObjetoAJSON(service.readVeterinario());
                 resp.getWriter().write(json);
             } else {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                json = ConversorJSON.convertirObjetoAJSON(Collections.singletonMap("error", "La mascota con el ID " + id + " no existe"));
+                json = ConversorJSON.convertirObjetoAJSON(Collections.singletonMap("error", "El veterinario con el ID " + id + " no existe"));
                 resp.getWriter().write(json);
             }
         } catch (NumberFormatException e) {

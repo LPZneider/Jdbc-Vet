@@ -15,6 +15,17 @@ public class Veterinario {
     @JoinColumn(name = "id_veterinaria")
     private Veterinaria veterinariaRegistrada;
 
+    @Embedded
+    private Registro registro;
+
+    public Veterinario() {
+    }
+
+    public Veterinario(String nombre, Veterinaria veterinariaRegistrada) {
+        this.nombre = nombre;
+        this.veterinariaRegistrada = veterinariaRegistrada;
+    }
+
     public Long getId() {
         return id;
     }
@@ -33,6 +44,14 @@ public class Veterinario {
 
     public Veterinaria getVeterinariaRegistrada() {
         return veterinariaRegistrada;
+    }
+
+    public Registro getRegistro() {
+        return registro;
+    }
+
+    public void setRegistro(Registro registro) {
+        this.registro = registro;
     }
 
     public void setVeterinariaRegistrada(Veterinaria veterinariaRegistrada) {

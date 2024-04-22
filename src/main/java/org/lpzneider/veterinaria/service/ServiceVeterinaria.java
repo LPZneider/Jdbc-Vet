@@ -6,6 +6,7 @@ import org.lpzneider.veterinaria.exceptions.ServiceJpaException;
 import org.lpzneider.veterinaria.interceptor.Transactional;
 import org.lpzneider.veterinaria.models.*;
 import org.lpzneider.veterinaria.repository.Repository;
+import org.lpzneider.veterinaria.repository.RepositoryRegister;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,11 +21,11 @@ public class ServiceVeterinaria implements Service {
     @Inject
     private Repository<Mascota> mascotaRepository;
     @Inject
-    private Repository<Usuario> usuarioRepository;
+    private RepositoryRegister<Usuario> usuarioRepository;
     @Inject
-    private Repository<Veterinario> veterinarioRepository;
+    private RepositoryRegister<Veterinario> veterinarioRepository;
     @Inject
-    private Repository<Veterinaria> veterinariaRepository;
+    private RepositoryRegister<Veterinaria> veterinariaRepository;
     @Inject
     private Repository<Raza> razaRepository;
 
@@ -61,6 +62,15 @@ public class ServiceVeterinaria implements Service {
     public void deleteMascota(Long id) {
         try {
             mascotaRepository.delete(id);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
+    public Optional<Usuario> loginUsuario(String username, String password) {
+        try {
+            return Optional.ofNullable(usuarioRepository.byEmail(username)).filter(u -> u.getRegistro().getPassword().equals(password));
         } catch (Exception e) {
             throw new ServiceJpaException(e.getMessage(), e.getCause());
         }
@@ -104,6 +114,15 @@ public class ServiceVeterinaria implements Service {
         }
     }
 
+    @Override
+    public Optional<Veterinario> loginVeterinario(String username, String password) {
+        try {
+            return Optional.ofNullable(veterinarioRepository.byEmail(username)).filter(u -> u.getRegistro().getPassword().equals(password));
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+    }
+
 
     @Override
     public List<Veterinario> readVeterinario() {
@@ -137,6 +156,15 @@ public class ServiceVeterinaria implements Service {
     public void deleteVeterinario(Long id) {
         try {
             veterinarioRepository.delete(id);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
+    public Optional<Veterinaria> loginVeterinaria(String username, String password) {
+        try {
+            return Optional.ofNullable(veterinariaRepository.byEmail(username)).filter(u -> u.getRegistro().getPassword().equals(password));
         } catch (Exception e) {
             throw new ServiceJpaException(e.getMessage(), e.getCause());
         }

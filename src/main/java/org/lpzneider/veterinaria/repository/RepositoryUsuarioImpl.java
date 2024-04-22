@@ -7,7 +7,7 @@ import org.lpzneider.veterinaria.models.Usuario;
 
 import java.util.List;
 @Repositorio
-public class RepositoryUsuarioImpl implements Repository<Usuario> {
+public class RepositoryUsuarioImpl implements RepositoryRegister<Usuario> {
 
     @Inject
     private EntityManager em;
@@ -37,4 +37,10 @@ public class RepositoryUsuarioImpl implements Repository<Usuario> {
         em.remove(getById(id));
     }
 
+    @Override
+    public Usuario byEmail(String email) throws Exception {
+        return em.createQuery("select u from Usuario u where u.registro.email  = :email", Usuario.class)
+                .setParameter("email", email)
+                .getSingleResult();
+    }
 }

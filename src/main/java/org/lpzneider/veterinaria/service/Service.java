@@ -14,7 +14,7 @@ public interface Service {
 
     void deleteMascota(Long id);
 
-
+    Optional<Usuario> loginUsuario(String username, String password);
     List<Usuario> readUsuario();
 
     Optional<Usuario> getByIdUsuario(Long id);
@@ -23,7 +23,7 @@ public interface Service {
 
     void deleteUsuario(Long id);
 
-
+    Optional<Veterinario> loginVeterinario(String username, String password);
     List<Veterinario> readVeterinario();
 
     Optional<Veterinario> getByIdVeterinario(Long id);
@@ -32,7 +32,7 @@ public interface Service {
 
     void deleteVeterinario(Long id);
 
-
+    Optional<Veterinaria> loginVeterinaria(String username, String password);
     List<Veterinaria> readVeterinaria();
 
     Optional<Veterinaria> getByIdVeterinaria(Long id);

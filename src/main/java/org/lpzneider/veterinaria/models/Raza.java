@@ -23,6 +23,13 @@ public class Raza {
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "raza")
     private List<Mascota> mascotas;
 
+    public Raza(String nombre, String tamanio, Integer altura, Integer peso) {
+        this.nombre = nombre;
+        this.tamanio = tamanio;
+        this.altura = altura;
+        this.peso = peso;
+    }
+
     public Raza() {
         this.mascotas = new ArrayList<>();
     }

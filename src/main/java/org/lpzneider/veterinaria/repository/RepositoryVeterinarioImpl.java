@@ -3,12 +3,14 @@ package org.lpzneider.veterinaria.repository;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import org.lpzneider.veterinaria.configs.Repositorio;
+import org.lpzneider.veterinaria.models.Usuario;
+import org.lpzneider.veterinaria.models.Veterinaria;
 import org.lpzneider.veterinaria.models.Veterinario;
 
 import java.util.List;
 
 @Repositorio
-public class RepositoryVeterinarioImpl implements Repository<Veterinario> {
+public class RepositoryVeterinarioImpl implements RepositoryRegister<Veterinario> {
 
     @Inject
     private EntityManager em;
@@ -35,6 +37,13 @@ public class RepositoryVeterinarioImpl implements Repository<Veterinario> {
     @Override
     public void delete(Long id) {
         em.remove(getById(id));
+    }
+
+    @Override
+    public Veterinario byEmail(String email) throws Exception {
+        return em.createQuery("select v from Veterinario v where v.registro.email = :email", Veterinario.class)
+                .setParameter("email", email)
+                .getSingleResult();
     }
 
 }

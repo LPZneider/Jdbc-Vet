@@ -3,11 +3,13 @@ package org.lpzneider.veterinaria.repository;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import org.lpzneider.veterinaria.configs.Repositorio;
+import org.lpzneider.veterinaria.models.Usuario;
 import org.lpzneider.veterinaria.models.Veterinaria;
 
 import java.util.List;
+
 @Repositorio
-public class RepositoryVeterinariaImpl implements Repository<Veterinaria> {
+public class RepositoryVeterinariaImpl implements RepositoryRegister<Veterinaria> {
 
     @Inject
     private EntityManager em;
@@ -23,7 +25,7 @@ public class RepositoryVeterinariaImpl implements Repository<Veterinaria> {
     }
 
     @Override
-    public void saveOrEdit(Veterinaria veterinaria)throws Exception {
+    public void saveOrEdit(Veterinaria veterinaria) throws Exception {
         if (veterinaria.getId() != null && veterinaria.getId() > 0) {
             em.merge(veterinaria);
         } else {
@@ -34,6 +36,13 @@ public class RepositoryVeterinariaImpl implements Repository<Veterinaria> {
     @Override
     public void delete(Long id) {
         em.remove(getById(id));
+    }
+
+    @Override
+    public Veterinaria byEmail(String email) throws Exception {
+        return em.createQuery("select v from Veterinaria v where v.registro.email = :email", Veterinaria.class)
+                .setParameter("email", email)
+                .getSingleResult();
     }
 
 }

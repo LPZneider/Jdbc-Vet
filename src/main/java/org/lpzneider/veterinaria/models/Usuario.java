@@ -1,6 +1,5 @@
 package org.lpzneider.veterinaria.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -22,9 +21,20 @@ public class Usuario {
     @ManyToMany(mappedBy = "usuarios")
     private List<Veterinaria> veterinarias;
 
+    @Embedded
+    private Registro registro;
+
+
+
     public Usuario() {
         this.mascotas = new ArrayList<>();
         this.veterinarias = new ArrayList<>();
+    }
+
+    public Usuario(String nombre, String direccion) {
+        this();
+        this.nombre = nombre;
+        this.direccion = direccion;
     }
 
     public Long getId() {
@@ -57,5 +67,18 @@ public class Usuario {
 
     public void setMascotas(List<Mascota> mascotas) {
         this.mascotas = mascotas;
+    }
+
+    public Registro getRegistro() {
+        return registro;
+    }
+
+    public void setRegistro(Registro registro) {
+        this.registro = registro;
+    }
+
+    public void addMascota(Mascota mascota) {
+        this.mascotas.add(mascota);
+        mascota.setPropietario(this);
     }
 }

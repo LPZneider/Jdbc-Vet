@@ -25,9 +25,18 @@ public class Veterinaria {
     private List<Veterinario> veterinarios;
 
 
+    @Embedded
+    private Registro registro;
+
     public Veterinaria() {
         this.usuarios = new ArrayList<>();
         this.veterinarios = new ArrayList<>();
+    }
+
+    public Veterinaria(String nombre, String direccion) {
+        this();
+        this.nombre = nombre;
+        this.direccion = direccion;
     }
 
     public Long getId() {
@@ -68,5 +77,12 @@ public class Veterinaria {
 
     public void setVeterinarios(List<Veterinario> veterinarios) {
         this.veterinarios = veterinarios;
+    }
+    public Registro getRegistro() {
+        return registro;
+    }
+
+    public void setRegistro(Registro registro) {
+        this.registro = registro;
     }
 }
