@@ -33,22 +33,31 @@ public class MascotaServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
         Long id;
         String json = null;
         try {
             id = Long.valueOf(req.getParameter("id"));
+
             if (id <= 0) {
                 throw new ServiceJpaException("el id a buscar no puede ser 0 o negativo");
             }
         } catch (NumberFormatException e) {
             id = null;
         }
+        Long idPropietario = null;
         try {
+            idPropietario = Long.valueOf(req.getParameter("idPropietario"));
+        } catch (NumberFormatException e) {
+            ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "formato incorrect del id del propietario");
+        }
+        try {
+            Optional<Usuario> usuario = service.getByIdUsuario(idPropietario);
             if (id == null) {
                 List<Mascota> mascotas = service.readMascota();
 
                 if (!mascotas.isEmpty()) {
-                    json = ConversorJSON.convertirObjetoAJSON(mascotas);
+                    json = ConversorJSON.convertirObjetoAJSON(usuario.get().getMascotas());
                     resp.setStatus(HttpServletResponse.SC_OK);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
@@ -112,7 +121,7 @@ public class MascotaServlet extends HttpServlet {
 
         String json;
         try {
-            json = ConversorJSON.convertirObjetoAJSON(service.readMascota());
+            json = ConversorJSON.convertirObjetoAJSON(usuario.get().getMascotas());
         } catch (Exception e) {
             ManejadorErrores.enviarErrorInterno(resp);
             return;
@@ -183,7 +192,7 @@ public class MascotaServlet extends HttpServlet {
         service.saveOrEditMascota(mascota);
 
         try {
-            String json = ConversorJSON.convertirObjetoAJSON(service.readMascota());
+            String json = ConversorJSON.convertirObjetoAJSON(usuario.get().getMascotas());
             if (json != null) {
                 resp.setContentType("application/json");
                 resp.getWriter().write(json);
@@ -203,14 +212,20 @@ public class MascotaServlet extends HttpServlet {
 
         resp.setContentType("application/json");
         String json = null;
+        Long idPropietario = null;
+        try {
+            idPropietario = Long.valueOf(req.getParameter("idPropietario"));
+        } catch (NumberFormatException e) {
+            ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "formato incorrect del id del propietario");
+        }
 
         try {
             Long id = Long.valueOf(req.getParameter("id"));
             Optional<Mascota> mascota = service.getByIdMascota(id);
-
+            Optional<Usuario> usuario = service.getByIdUsuario(idPropietario);
             if (mascota.isPresent()) {
                 service.deleteMascota(id);
-                json = ConversorJSON.convertirObjetoAJSON(service.readMascota());
+                json = ConversorJSON.convertirObjetoAJSON(usuario.get().getMascotas());
                 resp.getWriter().write(json);
             } else {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);

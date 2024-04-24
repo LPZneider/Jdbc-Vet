@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "veterinarias")
@@ -37,6 +38,11 @@ public class Veterinaria {
         this();
         this.nombre = nombre;
         this.direccion = direccion;
+    }
+
+    public Veterinaria(String nombre, Registro registro) {
+        this.nombre = nombre;
+        this.registro = registro;
     }
 
     public Long getId() {
@@ -84,5 +90,18 @@ public class Veterinaria {
 
     public void setRegistro(Registro registro) {
         this.registro = registro;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Veterinaria that = (Veterinaria) object;
+        return Objects.equals(registro, that.registro);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(registro);
     }
 }
