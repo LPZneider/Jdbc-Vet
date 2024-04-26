@@ -12,16 +12,19 @@ public class Producto {
 
     private String nombre;
     private Integer cantidad;
+    private Integer precio;
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_veterinaria")
     private Veterinaria veterinaria;
 
     public Producto() {
     }
 
-    public Producto(String nombre, Integer cantidad, Veterinaria veterinaria) {
+    public Producto(String nombre, Integer cantidad, Integer precio, Veterinaria veterinaria) {
         this.nombre = nombre;
         this.cantidad = cantidad;
+        this.precio = precio;
         this.veterinaria = veterinaria;
     }
 
@@ -39,6 +42,14 @@ public class Producto {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public Integer getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(Integer precio) {
+        this.precio = precio;
     }
 
     public Integer getCantidad() {

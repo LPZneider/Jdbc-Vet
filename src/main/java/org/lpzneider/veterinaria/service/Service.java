@@ -14,6 +14,14 @@ public interface Service {
 
     void deleteMascota(Long id);
 
+    List<Producto> readProducto();
+
+    Optional<Producto> getByIdProducto(Long id);
+
+    void saveOrEditProducto(Producto producto);
+
+    void deleteProducto(Long id);
+
     Optional<Usuario> loginUsuario(String username, String password);
     List<Usuario> readUsuario();
 

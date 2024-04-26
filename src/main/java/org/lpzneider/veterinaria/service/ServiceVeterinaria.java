@@ -28,6 +28,8 @@ public class ServiceVeterinaria implements Service {
     private RepositoryRegister<Veterinaria> veterinariaRepository;
     @Inject
     private Repository<Raza> razaRepository;
+    @Inject
+    private Repository<Producto> productoRepository;
 
 
     @Override
@@ -62,6 +64,42 @@ public class ServiceVeterinaria implements Service {
     public void deleteMascota(Long id) {
         try {
             mascotaRepository.delete(id);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
+    public List<Producto> readProducto() {
+        try {
+            return productoRepository.read();
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
+    public Optional<Producto> getByIdProducto(Long id) {
+        try {
+            return Optional.ofNullable(productoRepository.getById(id));
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
+    public void saveOrEditProducto(Producto producto) {
+        try {
+            productoRepository.saveOrEdit(producto);
+        } catch (Exception e) {
+            throw new ServiceJpaException(e.getMessage(), e.getCause());
+        }
+    }
+
+    @Override
+    public void deleteProducto(Long id) {
+        try {
+            productoRepository.delete(id);
         } catch (Exception e) {
             throw new ServiceJpaException(e.getMessage(), e.getCause());
         }

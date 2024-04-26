@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.lpzneider.veterinaria.configs.ServicePrincipal;
 import org.lpzneider.veterinaria.exceptions.ServiceJpaException;
+import org.lpzneider.veterinaria.models.Producto;
+import org.lpzneider.veterinaria.models.Raza;
 import org.lpzneider.veterinaria.models.Veterinaria;
 import org.lpzneider.veterinaria.service.Service;
 import org.lpzneider.veterinaria.util.ConversorJSON;
@@ -18,10 +20,9 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-@WebServlet("/veterinarias")
-public class VeterinariaServlet extends HttpServlet {
+@WebServlet("/productos")
+public class ProductoServlet extends HttpServlet {
     @Inject
     @ServicePrincipal
     private Service service;
@@ -40,22 +41,17 @@ public class VeterinariaServlet extends HttpServlet {
         }
         try {
             if (id == null) {
-                List<Veterinaria> veterinarias = service.readVeterinaria();
-                List<Veterinaria> veterinariasReducido = veterinarias.stream().map(veterinaria ->
-                        new Veterinaria(veterinaria.getId(),
-                                veterinaria.getNombre(),
-                                veterinaria.getDireccion(),
-                                veterinaria.getVeterinarios())).toList();
-                if (!veterinarias.isEmpty()) {
-                    json = ConversorJSON.convertirObjetoAJSON(veterinariasReducido);
+                List<Producto> producto = service.readProducto();
+
+                if (!producto.isEmpty()) {
+                    json = ConversorJSON.convertirObjetoAJSON(producto);
                     resp.setStatus(HttpServletResponse.SC_OK);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             } else {
-                Veterinaria veterinaria = service.getByIdVeterinaria(id)
-                        .orElseThrow(() -> new ServiceJpaException("Veterinaria no encontrada"));
-                json = ConversorJSON.convertirObjetoAJSON(veterinaria);
+                Optional<Producto> producto = service.getByIdProducto(id);
+                json = ConversorJSON.convertirObjetoAJSON(producto.get());
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
         } catch (JsonProcessingException e) {
@@ -73,19 +69,36 @@ public class VeterinariaServlet extends HttpServlet {
 
 
         String nombre = req.getParameter("nombre");
-        String direccion = req.getParameter("direccion");
+        String cantidadStr = req.getParameter("cantidad");
+        String precioStr = req.getParameter("precio");
+        String idVeterinariaStr = req.getParameter("idVeterinaria");
 
-        if (nombre == null || nombre.isEmpty() || direccion == null) {
+
+        if (nombre == null || nombre.isEmpty() || cantidadStr == null || cantidadStr.isEmpty()
+                || idVeterinariaStr == null || idVeterinariaStr.isEmpty() || precioStr == null || precioStr.isEmpty()) {
             ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
             return;
         }
 
-        Veterinaria veterinaria = new Veterinaria(nombre, direccion);
-        service.saveOrEditVeterinaria(veterinaria);
+        Integer cantidad;
+        Integer precio;
+        Long idVeterinaria;
 
+        try {
+            cantidad = Integer.valueOf(cantidadStr);
+            idVeterinaria = Long.valueOf(idVeterinariaStr);
+            precio = Integer.valueOf(precioStr);
+        } catch (NumberFormatException e) {
+            ManejadorErrores.enviarErrorInterno(resp);
+            return;
+        }
+
+        Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(idVeterinaria);
+        Producto producto = new Producto(nombre, cantidad,precio, veterinaria.get());
+        service.saveOrEditProducto(producto);
         String json;
         try {
-            json = ConversorJSON.convertirObjetoAJSON(service.readVeterinaria());
+            json = ConversorJSON.convertirObjetoAJSON(veterinaria.get().getProductos());
         } catch (Exception e) {
             ManejadorErrores.enviarErrorInterno(resp);
             return;
@@ -100,42 +113,49 @@ public class VeterinariaServlet extends HttpServlet {
         resp.setContentType("application/json");
         resp.getWriter().write(json);
         resp.setStatus(HttpServletResponse.SC_CREATED);
-
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         Long id = null;
 
         try {
             id = Long.valueOf(req.getParameter("id"));
         } catch (NumberFormatException e) {
-            throw new ServiceJpaException("Error al convertir el ID de veterinaria a número", e);
+            throw new ServiceJpaException("Error al convertir el ID de raza a número", e);
         }
 
-        Optional<Veterinaria> veterinariaOptional = service.getByIdVeterinaria(id);
-        if (veterinariaOptional.isEmpty()) {
+        Optional<Producto> productoOptional = service.getByIdProducto(id);
+        if (productoOptional.isEmpty()) {
             ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
             return;
         }
 
-        Veterinaria veterinaria = veterinariaOptional.get();
+        Producto producto = productoOptional.get();
+
         String nombre = req.getParameter("nombre");
-        String direccion = req.getParameter("direccion");
+        String cantidadStr = req.getParameter("cantidad");
+        String precioStr = req.getParameter("precio");
+        String idVeterinariaStr = req.getParameter("idVeterinaria");
+
+        nombre = (nombre == null) ? producto.getNombre() : nombre;
+        Integer cantidad = (cantidadStr == null) ? producto.getCantidad() : Integer.valueOf(cantidadStr);
+        Integer precio = (precioStr == null) ? producto.getPrecio() : Integer.valueOf(precioStr);
+        Long idVeterinaria = (idVeterinariaStr == null) ? producto.getVeterinaria().getId() : Long.valueOf(idVeterinariaStr);
 
 
-        nombre = (nombre == null) ? veterinaria.getNombre() : nombre;
-        direccion = (direccion == null) ? veterinaria.getDireccion() : direccion;
+        Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(idVeterinaria);
+
+        producto.setNombre(nombre);
+        producto.setPrecio(precio);
+        producto.setCantidad(cantidad);
+        producto.setVeterinaria(veterinaria.get());
 
 
-        veterinaria.setNombre(nombre);
-        veterinaria.setDireccion(direccion);
-
-        service.saveOrEditVeterinaria(veterinaria);
+        service.saveOrEditProducto(producto);
 
         try {
-            String json = ConversorJSON.convertirObjetoAJSON(service.readVeterinaria());
+            String json = ConversorJSON.convertirObjetoAJSON(veterinaria.get().getProductos() );
             if (json != null) {
                 resp.setContentType("application/json");
                 resp.getWriter().write(json);
@@ -157,16 +177,18 @@ public class VeterinariaServlet extends HttpServlet {
         String json = null;
 
         try {
+            Long idVeterinaria = Long.valueOf(req.getParameter("idVeterinaria"));
             Long id = Long.valueOf(req.getParameter("id"));
-            Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(id);
 
-            if (veterinaria.isPresent()) {
-                service.deleteVeterinaria(id);
-                json = ConversorJSON.convertirObjetoAJSON(service.readVeterinaria());
+            Optional<Raza> raza = service.getByIdRaza(id);
+            Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(id);
+            if (raza.isPresent() && veterinaria.isPresent()) {
+                service.deleteRaza(id);
+                json = ConversorJSON.convertirObjetoAJSON(veterinaria.get().getProductos());
                 resp.getWriter().write(json);
             } else {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                json = ConversorJSON.convertirObjetoAJSON(Collections.singletonMap("error", "La veterinaria con el ID " + id + " no existe"));
+                json = ConversorJSON.convertirObjetoAJSON(Collections.singletonMap("error", "La raza con el ID " + id + " no existe"));
                 resp.getWriter().write(json);
             }
         } catch (NumberFormatException e) {

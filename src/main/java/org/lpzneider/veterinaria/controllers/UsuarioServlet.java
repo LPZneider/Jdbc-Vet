@@ -130,7 +130,7 @@ public class UsuarioServlet extends HttpServlet {
         service.saveOrEditUsuario(usuario);
 
         try {
-            String json = ConversorJSON.convertirObjetoAJSON(service.readUsuario());
+            String json = ConversorJSON.convertirObjetoAJSON(usuario);
             if (json != null) {
                 resp.setContentType("application/json");
                 resp.getWriter().write(json);

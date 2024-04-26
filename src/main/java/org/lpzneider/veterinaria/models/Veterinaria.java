@@ -24,6 +24,8 @@ public class Veterinaria {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "veterinariaRegistrada")
     private List<Veterinario> veterinarios;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "veterinaria")
+    private List<Producto> productos;
 
 
     @Embedded
@@ -43,6 +45,13 @@ public class Veterinaria {
     public Veterinaria(String nombre, Registro registro) {
         this.nombre = nombre;
         this.registro = registro;
+    }
+
+    public Veterinaria(Long id, String nombre, String direccion, List<Veterinario> veterinarios) {
+        this.id = id;
+        this.nombre = nombre;
+        this.direccion = direccion;
+        this.veterinarios = veterinarios;
     }
 
     public Long getId() {
@@ -84,6 +93,15 @@ public class Veterinaria {
     public void setVeterinarios(List<Veterinario> veterinarios) {
         this.veterinarios = veterinarios;
     }
+
+    public List<Producto> getProductos() {
+        return productos;
+    }
+
+    public void setProductos(List<Producto> productos) {
+        this.productos = productos;
+    }
+
     public Registro getRegistro() {
         return registro;
     }
