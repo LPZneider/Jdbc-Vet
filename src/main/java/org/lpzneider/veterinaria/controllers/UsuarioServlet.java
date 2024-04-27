@@ -53,7 +53,7 @@ public class UsuarioServlet extends HttpServlet {
                 json = ConversorJSON.convertirObjetoAJSON(usuario);
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
-        } catch (JsonProcessingException e) {
+        } catch (ServiceJpaException |JsonProcessingException e) {
             ManejadorErrores.enviarErrorInterno(resp);
         }
         resp.setContentType("application/json");

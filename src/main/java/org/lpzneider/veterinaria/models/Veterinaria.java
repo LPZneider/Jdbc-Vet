@@ -17,9 +17,9 @@ public class Veterinaria {
     private String direccion;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "tbl_usuarios_veterinarias", joinColumns = @JoinColumn(name = "usuario_id")
-            , inverseJoinColumns = @JoinColumn(name = "veterinaria_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"usuario_id", "veterinaria_id"}))
+    @JoinTable(name = "tbl_usuarios_veterinarias", joinColumns = @JoinColumn(name = "veterinaria_id")
+            , inverseJoinColumns = @JoinColumn(name = "usuario_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"veterinaria_id", "usuario_id"}))
     private List<Usuario> usuarios;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "veterinariaRegistrada")
@@ -114,10 +114,13 @@ public class Veterinaria {
         this.usuarios.add(usuario);
         usuario.getVeterinarias().add(this);
     }
+
     public void removeUsuario(Usuario usuario) {
         this.usuarios.remove(usuario);
         usuario.getVeterinarias().remove(this);
+        usuario.setVeterinarias(usuario.getVeterinarias());
     }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;

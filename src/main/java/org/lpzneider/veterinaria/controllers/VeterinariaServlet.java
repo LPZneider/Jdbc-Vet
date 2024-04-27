@@ -38,6 +38,7 @@ public class VeterinariaServlet extends HttpServlet {
         } catch (NumberFormatException e) {
             id = null;
         }
+
         try {
             if (id == null) {
                 List<Veterinaria> veterinarias = service.readVeterinaria();
@@ -53,9 +54,8 @@ public class VeterinariaServlet extends HttpServlet {
                     resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             } else {
-                Veterinaria veterinaria = service.getByIdVeterinaria(id)
-                        .orElseThrow(() -> new ServiceJpaException("Veterinaria no encontrada"));
-                json = ConversorJSON.convertirObjetoAJSON(veterinaria);
+               Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(id);
+                json = ConversorJSON.convertirObjetoAJSON(veterinaria.get());
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
         } catch (JsonProcessingException e) {

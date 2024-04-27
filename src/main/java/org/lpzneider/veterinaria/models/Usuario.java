@@ -1,5 +1,6 @@
 package org.lpzneider.veterinaria.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -18,13 +19,12 @@ public class Usuario {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "propietario")
     private List<Mascota> mascotas;
-
+    @JsonIgnore
     @ManyToMany(mappedBy = "usuarios")
     private List<Veterinaria> veterinarias;
 
     @Embedded
     private Registro registro;
-
 
 
     public Usuario() {
@@ -38,7 +38,7 @@ public class Usuario {
         this.direccion = direccion;
     }
 
-    public Usuario(String nombre,  Registro registro) {
+    public Usuario(String nombre, Registro registro) {
         this.nombre = nombre;
         this.registro = registro;
     }
@@ -88,16 +88,13 @@ public class Usuario {
     }
 
     public void setVeterinarias(List<Veterinaria> veterinarias) {
-        this.veterinarias = veterinarias;
-    }
+       this.veterinarias = veterinarias;
+   }
 
     public void addMascota(Mascota mascota) {
         this.mascotas.add(mascota);
         mascota.setPropietario(this);
     }
-
-
-
 
     @Override
     public boolean equals(Object object) {
