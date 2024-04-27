@@ -83,10 +83,21 @@ public class Usuario {
         this.registro = registro;
     }
 
+    public List<Veterinaria> getVeterinarias() {
+        return veterinarias;
+    }
+
+    public void setVeterinarias(List<Veterinaria> veterinarias) {
+        this.veterinarias = veterinarias;
+    }
+
     public void addMascota(Mascota mascota) {
         this.mascotas.add(mascota);
         mascota.setPropietario(this);
     }
+
+
+
 
     @Override
     public boolean equals(Object object) {

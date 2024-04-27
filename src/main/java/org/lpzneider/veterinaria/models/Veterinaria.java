@@ -110,6 +110,14 @@ public class Veterinaria {
         this.registro = registro;
     }
 
+    public void addUsuario(Usuario usuario) {
+        this.usuarios.add(usuario);
+        usuario.getVeterinarias().add(this);
+    }
+    public void removeUsuario(Usuario usuario) {
+        this.usuarios.remove(usuario);
+        usuario.getVeterinarias().remove(this);
+    }
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
