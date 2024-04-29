@@ -122,7 +122,7 @@ public class ProductoServlet extends HttpServlet {
         try {
             id = Long.valueOf(req.getParameter("id"));
         } catch (NumberFormatException e) {
-            throw new ServiceJpaException("Error al convertir el ID de raza a número", e);
+            throw new ServiceJpaException("Error al convertir el ID de producto a número", e);
         }
 
         Optional<Producto> productoOptional = service.getByIdProducto(id);
@@ -180,15 +180,15 @@ public class ProductoServlet extends HttpServlet {
             Long idVeterinaria = Long.valueOf(req.getParameter("idVeterinaria"));
             Long id = Long.valueOf(req.getParameter("id"));
 
-            Optional<Raza> raza = service.getByIdRaza(id);
-            Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(id);
-            if (raza.isPresent() && veterinaria.isPresent()) {
-                service.deleteRaza(id);
+            Optional<Producto> producto = service.getByIdProducto(id);
+            Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(idVeterinaria);
+            if (producto.isPresent() && veterinaria.isPresent()) {
+                service.deleteProducto(id);
                 json = ConversorJSON.convertirObjetoAJSON(veterinaria.get().getProductos());
                 resp.getWriter().write(json);
             } else {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                json = ConversorJSON.convertirObjetoAJSON(Collections.singletonMap("error", "La raza con el ID " + id + " no existe"));
+                json = ConversorJSON.convertirObjetoAJSON(Collections.singletonMap("error", "El producto con el ID " + id + " no existe" + idVeterinaria));
                 resp.getWriter().write(json);
             }
         } catch (NumberFormatException e) {

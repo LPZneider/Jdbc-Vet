@@ -135,7 +135,7 @@ public class VeterinariaServlet extends HttpServlet {
         service.saveOrEditVeterinaria(veterinaria);
 
         try {
-            String json = ConversorJSON.convertirObjetoAJSON(service.readVeterinaria());
+            String json = ConversorJSON.convertirObjetoAJSON(veterinaria);
             if (json != null) {
                 resp.setContentType("application/json");
                 resp.getWriter().write(json);

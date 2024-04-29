@@ -175,15 +175,17 @@ public class VeterinarioServlet extends HttpServlet {
 
         try {
             Long id = Long.valueOf(req.getParameter("id"));
+            Long idVeterinaria = Long.valueOf(req.getParameter("idVeterinaria"));
             Optional<Veterinario> veterinario = service.getByIdVeterinario(id);
+            Optional<Veterinaria> veterinaria =service.getByIdVeterinaria(idVeterinaria);
 
-            if (veterinario.isPresent()) {
+            if (veterinario.isPresent() && veterinaria.isPresent()) {
                 service.deleteVeterinario(id);
-                json = ConversorJSON.convertirObjetoAJSON(service.readVeterinario());
+                json = ConversorJSON.convertirObjetoAJSON(veterinaria.get().getVeterinarios());
                 resp.getWriter().write(json);
             } else {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                json = ConversorJSON.convertirObjetoAJSON(Collections.singletonMap("error", "El veterinario con el ID " + id + " no existe"));
+                json = ConversorJSON.convertirObjetoAJSON(Collections.singletonMap("error", "El veterinario con el ID " + id + " no existe" + idVeterinaria));
                 resp.getWriter().write(json);
             }
         } catch (NumberFormatException e) {
