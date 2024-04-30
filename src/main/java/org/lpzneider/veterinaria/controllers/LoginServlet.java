@@ -15,7 +15,9 @@ import org.lpzneider.veterinaria.util.ConversorJSON;
 import org.lpzneider.veterinaria.util.ManejadorErrores;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @WebServlet("/login")
@@ -48,7 +50,18 @@ public class LoginServlet extends HttpServlet {
                     ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
                     return;
                 } else {
-                    json = ConversorJSON.convertirObjetoAJSON(veterinario.get());
+                    Veterinaria veterinaria = veterinario.get().getVeterinariaRegistrada();
+                    veterinaria.setVeterinarios(new ArrayList<>());
+                    veterinaria.getVeterinarios().add(veterinario.get());
+                    veterinaria.setProductos(null);
+                    veterinaria.setRegistro(null);
+                    List<Usuario> usuarios = veterinaria.getUsuarios();
+                    //(Long id, String nombre, String direccion, List<Mascota> mascotas
+                    usuarios = usuarios.stream().map(usuario1 -> new Usuario(usuario1.getId(),
+                            usuario1.getNombre(),usuario1.getDireccion(), usuario1.getMascotas())).toList();
+                    veterinaria.setUsuarios(usuarios);
+
+                    json = ConversorJSON.convertirObjetoAJSON(veterinaria);
                     resp.setStatus(HttpServletResponse.SC_OK);
                 }
                 break;

@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "mascotas")
@@ -26,7 +28,11 @@ public class Mascota implements Serializable {
     @JoinColumn(name = "id_propietario")
     private Usuario propietario;
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "mascota")
+    private List<Tratamiento> tratamientos;
+
     public Mascota() {
+        tratamientos = new ArrayList<>();
     }
 
     public Mascota(String nombre, Date fechaNacimiento) {
@@ -81,11 +87,16 @@ public class Mascota implements Serializable {
         this.propietario = propietario;
     }
 
+    public List<Tratamiento> getTratamientos() {
+        return tratamientos;
+    }
+    public void setTratamientos(List<Tratamiento> tratamientos) {
+        this.tratamientos = tratamientos;
+    }
     public void addRaza(Raza raza) {
         this.raza = raza;
         raza.getMascotas().add(this);
     }
-
     public void addUsuario(Usuario usuario) {
         this.propietario = usuario;
         usuario.getMascotas().add(this);

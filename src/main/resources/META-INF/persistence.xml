@@ -8,6 +8,7 @@
         <class>org.lpzneider.veterinaria.models.Veterinario</class>
         <class>org.lpzneider.veterinaria.models.Raza</class>
         <class>org.lpzneider.veterinaria.models.Producto</class>
+        <class>org.lpzneider.veterinaria.models.Tratamiento</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="jakarta.persistence.jdbc.url"

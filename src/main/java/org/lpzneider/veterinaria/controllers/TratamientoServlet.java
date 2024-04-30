@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.lpzneider.veterinaria.configs.ServicePrincipal;
 import org.lpzneider.veterinaria.exceptions.ServiceJpaException;
 import org.lpzneider.veterinaria.models.Registro;
+import org.lpzneider.veterinaria.models.Tratamiento;
 import org.lpzneider.veterinaria.models.Veterinaria;
 import org.lpzneider.veterinaria.models.Veterinario;
 import org.lpzneider.veterinaria.service.Service;
@@ -18,11 +19,10 @@ import org.lpzneider.veterinaria.util.ManejadorErrores;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
-@WebServlet("/veterinarios")
-public class VeterinarioServlet extends HttpServlet {
+@WebServlet("/tratamientos")
+public class TratamientoServlet extends HttpServlet {
     @Inject
     @ServicePrincipal
     private Service service;
@@ -30,9 +30,11 @@ public class VeterinarioServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Long id;
+        Long idVeterinario = null;
         String json = null;
         try {
             id = Long.valueOf(req.getParameter("id"));
+            idVeterinario = Long.valueOf(req.getParameter("idVeterinario"));
             if (id <= 0) {
                 throw new ServiceJpaException("el id a buscar no puede ser 0 o negativo");
             }
@@ -41,18 +43,18 @@ public class VeterinarioServlet extends HttpServlet {
         }
         try {
             if (id == null) {
-                List<Veterinario> veterinarios = service.readVeterinario();
-
-                if (!veterinarios.isEmpty()) {
-                    json = ConversorJSON.convertirObjetoAJSON(veterinarios);
+                Optional<Veterinario> veterinario = service.getByIdVeterinario(idVeterinario);
+                if (!veterinario.isEmpty()) {
+                    Long finalId = id;
+                    Tratamiento tratamiento = veterinario.get().getTratamientos().stream().filter((tratamiento1) -> tratamiento1.getId() == finalId).findAny().get();
+                    json = ConversorJSON.convertirObjetoAJSON(tratamiento);
                     resp.setStatus(HttpServletResponse.SC_OK);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             } else {
-                Veterinario veterinario = service.getByIdVeterinario(id)
-                        .orElseThrow(() -> new ServiceJpaException("Veterinario no encontrada"));
-                json = ConversorJSON.convertirObjetoAJSON(veterinario);
+                Optional<Veterinario> veterinario = service.getByIdVeterinario(idVeterinario);
+                json = ConversorJSON.convertirObjetoAJSON(veterinario.get().getTratamientos());
                 resp.setStatus(HttpServletResponse.SC_OK);
             }
         } catch (JsonProcessingException e) {
@@ -67,7 +69,6 @@ public class VeterinarioServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
 
 
         String idVeterinaria = req.getParameter("idVeterinaria");
@@ -94,7 +95,7 @@ public class VeterinarioServlet extends HttpServlet {
             ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
             return;
         }
-        Registro registro = new Registro(email,password);
+        Registro registro = new Registro(email, password);
         Veterinario veterinario = new Veterinario(nombre, optionalVeterinaria.get(), registro);
         service.saveOrEditVeterinario(veterinario);
 
@@ -182,7 +183,7 @@ public class VeterinarioServlet extends HttpServlet {
             Long id = Long.valueOf(req.getParameter("id"));
             Long idVeterinaria = Long.valueOf(req.getParameter("idVeterinaria"));
             Optional<Veterinario> veterinario = service.getByIdVeterinario(id);
-            Optional<Veterinaria> veterinaria =service.getByIdVeterinaria(idVeterinaria);
+            Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(idVeterinaria);
 
             if (veterinario.isPresent() && veterinaria.isPresent()) {
                 service.deleteVeterinario(id);

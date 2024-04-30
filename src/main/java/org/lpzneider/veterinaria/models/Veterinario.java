@@ -3,6 +3,9 @@ package org.lpzneider.veterinaria.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "veterinarios")
 public class Veterinario {
@@ -17,13 +20,22 @@ public class Veterinario {
 
     @Embedded
     private Registro registro;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "veterinario")
+    private List<Tratamiento> tratamientos;
 
     public Veterinario() {
+        tratamientos = new ArrayList<>();
     }
 
     public Veterinario(String nombre, Veterinaria veterinariaRegistrada) {
         this.nombre = nombre;
         this.veterinariaRegistrada = veterinariaRegistrada;
+    }
+
+    public Veterinario(String nombre, Veterinaria veterinariaRegistrada, Registro registro) {
+        this.nombre = nombre;
+        this.veterinariaRegistrada = veterinariaRegistrada;
+        this.registro = registro;
     }
 
     public Long getId() {
@@ -56,5 +68,20 @@ public class Veterinario {
 
     public void setVeterinariaRegistrada(Veterinaria veterinariaRegistrada) {
         this.veterinariaRegistrada = veterinariaRegistrada;
+    }
+
+    public List<Tratamiento> getTratamientos() {
+        return tratamientos;
+    }
+
+    public void setTratamientos(List<Tratamiento> tratamientos) {
+        this.tratamientos = tratamientos;
+    }
+
+    public void addTratamientos(Tratamiento tratamiento, Mascota mascota) {
+        tratamiento.setVeterinario(this);
+        mascota.getTratamientos().add(tratamiento);
+        tratamiento.setMascota(mascota);
+        this.tratamientos.add(tratamiento);
     }
 }

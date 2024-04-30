@@ -56,4 +56,13 @@ public interface Service {
     void saveOrEditRaza(Raza raza);
 
     void deleteRaza(Long id);
+
+
+    List<Tratamiento> readTratamiento();
+
+    Optional<Tratamiento> getByIdTratamiento(Long id);
+
+    void saveOrEditTratamiento(Tratamiento tratamiento);
+
+    void deleteTratamiento(Long id);
 }

@@ -32,6 +32,13 @@ public class Usuario {
         this.veterinarias = new ArrayList<>();
     }
 
+    public Usuario(Long id, String nombre, String direccion, List<Mascota> mascotas) {
+        this.id = id;
+        this.nombre = nombre;
+        this.direccion = direccion;
+        this.mascotas = mascotas;
+    }
+
     public Usuario(String nombre, String direccion) {
         this();
         this.nombre = nombre;
