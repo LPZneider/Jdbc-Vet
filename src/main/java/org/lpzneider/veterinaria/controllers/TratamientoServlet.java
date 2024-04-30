@@ -9,10 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.lpzneider.veterinaria.configs.ServicePrincipal;
 import org.lpzneider.veterinaria.exceptions.ServiceJpaException;
-import org.lpzneider.veterinaria.models.Registro;
-import org.lpzneider.veterinaria.models.Tratamiento;
-import org.lpzneider.veterinaria.models.Veterinaria;
-import org.lpzneider.veterinaria.models.Veterinario;
+import org.lpzneider.veterinaria.models.*;
 import org.lpzneider.veterinaria.service.Service;
 import org.lpzneider.veterinaria.util.ConversorJSON;
 import org.lpzneider.veterinaria.util.ManejadorErrores;
@@ -44,7 +41,7 @@ public class TratamientoServlet extends HttpServlet {
         try {
             if (id == null) {
                 Optional<Veterinario> veterinario = service.getByIdVeterinario(idVeterinario);
-                if (!veterinario.isEmpty()) {
+                if (veterinario.isPresent()) {
                     Long finalId = id;
                     Tratamiento tratamiento = veterinario.get().getTratamientos().stream().filter((tratamiento1) -> tratamiento1.getId() == finalId).findAny().get();
                     json = ConversorJSON.convertirObjetoAJSON(tratamiento);
@@ -71,37 +68,39 @@ public class TratamientoServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 
-        String idVeterinaria = req.getParameter("idVeterinaria");
-        String password = req.getParameter("password");
+        String idVeterinario = req.getParameter("id_veterinario");
+        String descripcion = req.getParameter("descripcion");
         String nombre = req.getParameter("nombre");
-        String email = req.getParameter("email");
+        String idMascota = req.getParameter("id_mascota");
 
-        if (nombre == null || nombre.isEmpty() || idVeterinaria == null || password == null || password.isEmpty() || email == null || email.isEmpty()) {
+        if (nombre == null || nombre.isEmpty() || idVeterinario == null || descripcion == null || descripcion.isEmpty() || idMascota == null || idMascota.isEmpty()) {
             ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
             return;
         }
 
         Long idVet;
+        Long idMasco;
         try {
-            idVet = Long.valueOf(idVeterinaria);
+            idVet = Long.valueOf(idVeterinario);
+            idMasco = Long.valueOf(idMascota);
         } catch (NumberFormatException e) {
             ManejadorErrores.enviarErrorInterno(resp);
             return;
         }
+        Optional<Veterinario> optionalVeterinario = service.getByIdVeterinario(idVet);
+        Optional<Mascota> optionalMascota = service.getByIdMascota(idMasco);
 
-        Optional<Veterinaria> optionalVeterinaria = service.getByIdVeterinaria(idVet);
-
-        if (optionalVeterinaria.isEmpty()) {
+        if (optionalVeterinario.isEmpty() || optionalMascota.isEmpty()) {
             ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
             return;
         }
-        Registro registro = new Registro(email, password);
-        Veterinario veterinario = new Veterinario(nombre, optionalVeterinaria.get(), registro);
-        service.saveOrEditVeterinario(veterinario);
+
+        Tratamiento tratamiento = new Tratamiento(nombre, descripcion,optionalVeterinario.get(), optionalMascota.get());
+        service.saveOrEditTratamiento(tratamiento);
 
         String json;
         try {
-            json = ConversorJSON.convertirObjetoAJSON(optionalVeterinaria.get().getVeterinarios());
+            json = ConversorJSON.convertirObjetoAJSON(optionalVeterinario.get().getTratamientos());
         } catch (Exception e) {
             ManejadorErrores.enviarErrorInterno(resp);
             return;
@@ -123,42 +122,37 @@ public class TratamientoServlet extends HttpServlet {
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         Long id = null;
-
+        Long idVeterinario =null;
 
         try {
             id = Long.valueOf(req.getParameter("id"));
+            idVeterinario = Long.valueOf(req.getParameter("id_veterinario"));
         } catch (NumberFormatException e) {
             throw new ServiceJpaException("Error al convertir el ID de veterinario a número", e);
         }
 
-        Optional<Veterinario> veterinarioOptional = service.getByIdVeterinario(id);
-        if (veterinarioOptional.isEmpty()) {
+        Optional<Veterinario> veterinarioOptional = service.getByIdVeterinario(idVeterinario);
+        Optional<Tratamiento> tratamientoOptional = service.getByIdTratamiento(id);
+        if (veterinarioOptional.isEmpty() || tratamientoOptional.isEmpty()) {
             ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
             return;
         }
 
         Veterinario veterinario = veterinarioOptional.get();
+        Tratamiento tratamiento = tratamientoOptional.get();
         String nombre = req.getParameter("nombre");
-        String idVeterinaria = req.getParameter("idVeterinaria");
+        String descripcion = req.getParameter("descripcion");
 
 
-        nombre = (nombre == null) ? veterinario.getNombre() : nombre;
-        Long idVet = (idVeterinaria == null) ? veterinario.getVeterinariaRegistrada().getId() : Long.valueOf(idVeterinaria);
+        nombre = (nombre == null) ? tratamiento.getNombre() : nombre;
+        descripcion= (descripcion == null)? tratamiento.getDescripcion() : descripcion;
 
-        Optional<Veterinaria> optionalVeterinaria = service.getByIdVeterinaria(idVet);
-
-        if (optionalVeterinaria.isEmpty()) {
-            ManejadorErrores.enviarError(resp, HttpServletResponse.SC_BAD_REQUEST, "Parámetros inválidos");
-            return;
-        }
-
-        veterinario.setNombre(nombre);
-        veterinario.setVeterinariaRegistrada(optionalVeterinaria.get());
-
-        service.saveOrEditVeterinario(veterinario);
+        tratamiento.setNombre(nombre);
+        tratamiento.setDescripcion(descripcion);
+        service.saveOrEditTratamiento(tratamiento);
 
         try {
-            String json = ConversorJSON.convertirObjetoAJSON(optionalVeterinaria.get().getVeterinarios());
+            String json = ConversorJSON.convertirObjetoAJSON(veterinario.getTratamientos());
             if (json != null) {
                 resp.setContentType("application/json");
                 resp.getWriter().write(json);
@@ -181,17 +175,18 @@ public class TratamientoServlet extends HttpServlet {
 
         try {
             Long id = Long.valueOf(req.getParameter("id"));
-            Long idVeterinaria = Long.valueOf(req.getParameter("idVeterinaria"));
-            Optional<Veterinario> veterinario = service.getByIdVeterinario(id);
-            Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(idVeterinaria);
+            Long idVeterinario = Long.valueOf(req.getParameter("idVeterinario"));
 
-            if (veterinario.isPresent() && veterinaria.isPresent()) {
-                service.deleteVeterinario(id);
-                json = ConversorJSON.convertirObjetoAJSON(veterinaria.get().getVeterinarios());
+            Optional<Tratamiento> tratamientoOptional = service.getByIdTratamiento(id);
+            Optional<Veterinario> veterinarioOptional = service.getByIdVeterinario(idVeterinario);
+
+            if (tratamientoOptional.isPresent() && veterinarioOptional.isPresent()) {
+                service.deleteTratamiento(id);
+                json = ConversorJSON.convertirObjetoAJSON(veterinarioOptional.get().getTratamientos());
                 resp.getWriter().write(json);
             } else {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                json = ConversorJSON.convertirObjetoAJSON(Collections.singletonMap("error", "El veterinario con el ID " + id + " no existe" + idVeterinaria));
+                json = ConversorJSON.convertirObjetoAJSON(Collections.singletonMap("error", "El tratamiento con el ID " + id + " no existe"));
                 resp.getWriter().write(json);
             }
         } catch (NumberFormatException e) {
