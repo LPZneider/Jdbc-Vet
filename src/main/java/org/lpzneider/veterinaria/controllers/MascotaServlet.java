@@ -1,7 +1,6 @@
 package org.lpzneider.veterinaria.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.inject.Inject;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -56,7 +55,7 @@ public class MascotaServlet extends HttpServlet {
             if (id == null) {
                 List<Mascota> mascotas = service.readMascota();
 
-                if (!mascotas.isEmpty()) {
+                if (!mascotas.isEmpty() && usuario.isPresent()) {
                     json = ConversorJSON.convertirObjetoAJSON(usuario.get().getMascotas());
                     resp.setStatus(HttpServletResponse.SC_OK);
                 } else {
@@ -223,7 +222,7 @@ public class MascotaServlet extends HttpServlet {
             Long id = Long.valueOf(req.getParameter("id"));
             Optional<Mascota> mascota = service.getByIdMascota(id);
             Optional<Usuario> usuario = service.getByIdUsuario(idPropietario);
-            if (mascota.isPresent()) {
+            if (mascota.isPresent() && usuario.isPresent()) {
                 service.deleteMascota(id);
                 json = ConversorJSON.convertirObjetoAJSON(usuario.get().getMascotas());
                 resp.getWriter().write(json);

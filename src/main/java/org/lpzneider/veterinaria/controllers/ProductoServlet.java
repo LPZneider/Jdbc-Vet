@@ -51,8 +51,12 @@ public class ProductoServlet extends HttpServlet {
                 }
             } else {
                 Optional<Producto> producto = service.getByIdProducto(id);
-                json = ConversorJSON.convertirObjetoAJSON(producto.get());
-                resp.setStatus(HttpServletResponse.SC_OK);
+                if(producto.isPresent()) {
+                    json = ConversorJSON.convertirObjetoAJSON(producto.get());
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                }else {
+                    resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                }
             }
         } catch (JsonProcessingException e) {
             ManejadorErrores.enviarErrorInterno(resp);
@@ -94,6 +98,10 @@ public class ProductoServlet extends HttpServlet {
         }
 
         Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(idVeterinaria);
+        if (veterinaria.isEmpty()){
+            ManejadorErrores.enviarError(resp, HttpServletResponse.SC_NO_CONTENT, "veterinaria no encontrada");
+            return;
+        }
         Producto producto = new Producto(nombre, cantidad,precio, veterinaria.get());
         service.saveOrEditProducto(producto);
         String json;
@@ -145,7 +153,10 @@ public class ProductoServlet extends HttpServlet {
 
 
         Optional<Veterinaria> veterinaria = service.getByIdVeterinaria(idVeterinaria);
-
+        if (veterinaria.isEmpty()){
+            ManejadorErrores.enviarError(resp, HttpServletResponse.SC_NO_CONTENT, "veterinaria no encontrada");
+            return;
+        }
         producto.setNombre(nombre);
         producto.setPrecio(precio);
         producto.setCantidad(cantidad);

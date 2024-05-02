@@ -16,6 +16,8 @@ import org.lpzneider.veterinaria.util.ManejadorErrores;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @WebServlet("/tratamientos")
@@ -39,20 +41,23 @@ public class TratamientoServlet extends HttpServlet {
             id = null;
         }
         try {
-            if (id == null) {
+            if (id != null) {
                 Optional<Veterinario> veterinario = service.getByIdVeterinario(idVeterinario);
-                if (veterinario.isPresent()) {
-                    Long finalId = id;
-                    Tratamiento tratamiento = veterinario.get().getTratamientos().stream().filter((tratamiento1) -> tratamiento1.getId() == finalId).findAny().get();
-                    json = ConversorJSON.convertirObjetoAJSON(tratamiento);
+                    Optional<Mascota> mascota = service.getByIdMascota(id);
+                if (veterinario.isPresent() && mascota.isPresent()) {
+                    json = ConversorJSON.convertirObjetoAJSON(mascota.get().getTratamientos());
                     resp.setStatus(HttpServletResponse.SC_OK);
                 } else {
                     resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
                 }
             } else {
                 Optional<Veterinario> veterinario = service.getByIdVeterinario(idVeterinario);
-                json = ConversorJSON.convertirObjetoAJSON(veterinario.get().getTratamientos());
-                resp.setStatus(HttpServletResponse.SC_OK);
+                if(veterinario.isPresent()) {
+                    json = ConversorJSON.convertirObjetoAJSON(veterinario.get().getTratamientos());
+                    resp.setStatus(HttpServletResponse.SC_OK);
+                }else {
+                    resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                }
             }
         } catch (JsonProcessingException e) {
             ManejadorErrores.enviarErrorInterno(resp);
@@ -100,7 +105,7 @@ public class TratamientoServlet extends HttpServlet {
 
         String json;
         try {
-            json = ConversorJSON.convertirObjetoAJSON(optionalVeterinario.get().getTratamientos());
+            json = ConversorJSON.convertirObjetoAJSON(optionalVeterinario.get().getVeterinariaRegistrada().getUsuarios());
         } catch (Exception e) {
             ManejadorErrores.enviarErrorInterno(resp);
             return;
@@ -152,7 +157,7 @@ public class TratamientoServlet extends HttpServlet {
         service.saveOrEditTratamiento(tratamiento);
 
         try {
-            String json = ConversorJSON.convertirObjetoAJSON(veterinario.getTratamientos());
+            String json = ConversorJSON.convertirObjetoAJSON(veterinario.getVeterinariaRegistrada().getUsuarios());
             if (json != null) {
                 resp.setContentType("application/json");
                 resp.getWriter().write(json);
@@ -182,7 +187,7 @@ public class TratamientoServlet extends HttpServlet {
 
             if (tratamientoOptional.isPresent() && veterinarioOptional.isPresent()) {
                 service.deleteTratamiento(id);
-                json = ConversorJSON.convertirObjetoAJSON(veterinarioOptional.get().getTratamientos());
+                json = ConversorJSON.convertirObjetoAJSON(veterinarioOptional.get().getVeterinariaRegistrada().getUsuarios());
                 resp.getWriter().write(json);
             } else {
                 resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
